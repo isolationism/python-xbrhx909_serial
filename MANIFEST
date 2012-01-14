@@ -1,0 +1,3 @@
+setup.py
+src/__init__.py
+src/command.py
