@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(name='xbrhx909_serial',
     version='0.0.1',
-    description='Serial Control Protocol for Sony Television model XBR xx HX909 (and similar devices)',
+    description='Serial Control Protocol for Sony Television model XBR HX909 (and similar devices)',
     author='Kevin Williams',
     author_email='kevin@weblivion.com',
     url='http://www.weblivion.com/',
