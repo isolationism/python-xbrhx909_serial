@@ -253,7 +253,7 @@ class SonyXBRHX909(object):
 
         return response_int
 
-    def sircs_command(self, data,  category):
+    def sircs_command(self, data, category):
         """Issues a SIRCS command, which require a data and category value.
         The data is usually a large integer and the category a small one (0-2)
         """
@@ -304,6 +304,48 @@ class SonyXBRHX909(object):
     def speaker_toggle(self):
         """Toggle internal speakers on/off"""
         return self._cmd(['36', '02', '00'])
+
+    def volume_up(self):
+        return self._cmd(['05', '03', '00', '00'])
+
+    def volume_down(self):
+        return self._cmd(['05', '03', '00', '01'])
+
+    def mute_toggle(self):
+        return self._cmd(['06', '02', '00'])
+
+    def action_menu(self):
+        return self._cmd(['67', '03', '97', '36'])
+
+    def up(self):
+        return self._cmd(['67', '03', '01', '74'])
+
+    def down(self):
+        return self._cmd(['67', '03', '01', '75'])
+
+    def left(self):
+        return self._cmd(['67', '03', '01', '34'])
+
+    def right(self):
+        return self._cmd(['67', '03', '01', '33'])
+
+    def enter(self):
+        return self._cmd(['67', '03', '01', '65'])
+
+    def ok(self):
+        return self.enter()
+
+    def select(self):
+        return self.enter()
+
+    def back(self):
+        return self._cmd(['67', '03', '97', '23'])
+
+    def rturn(self):
+        return self.back()
+
+    def home(self):
+        return self._cmd(['67', '03', '01', '60'])
 
     def input_select(self, input_group, input_subgroup, input_unit=None):
         """Generic command for selecting an input"""
