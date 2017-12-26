@@ -63,7 +63,7 @@ class SonyXBRHX909(object):
     don't care about--like CATV input, volume control, closed captioning, etc.
     """
 
-    command_interval = 0.15 # Sony recommends 0.5, but 0.15 works reliably
+    command_interval = 0.15  # Sony recommends 0.5, but 0.15 works reliably
 
     byte0 = '8C'
 
@@ -108,8 +108,9 @@ class SonyXBRHX909(object):
         '/dev/ttyS1' for the second serial port) or an integer (e.g. 1).
         """
         # Creates an (active) serial connection.
-        self.__conn = serial.Serial(port=serial_port, baudrate=9600,
-            bytesize=8, parity='N', stopbits=1, timeout=self.command_interval)
+        self.__conn = serial.Serial(
+            port=serial_port, baudrate=9600, bytesize=8, parity='N',
+            stopbits=1, timeout=self.command_interval)
         self.c = self.__conn
         
     def _chksum(self, command):
@@ -124,7 +125,7 @@ class SonyXBRHX909(object):
         return_binary = True
     
         # Convert all to decimal
-        if isinstance(command[0], (str, unicode)):
+        if isinstance(command[0], str):
             command = [int(c, 16) for c in command]
             return_binary = False
     
@@ -132,7 +133,8 @@ class SonyXBRHX909(object):
         binsum = sum(command)
     
         # Checksum must be <= 255
-        if binsum > 255: binsum %= 256
+        if binsum > 255:
+            binsum %= 256
             
         # Return the checksum in the same format as arguments.
         if return_binary:
@@ -140,9 +142,10 @@ class SonyXBRHX909(object):
         else:
             return hex(binsum)[2:4].zfill(2)
 
-    def _nsplit(self, str):
-        n = 2 # Number of characters per group
-        return [str[k:k+n] for k in xrange(0, len(str), n)]
+    @staticmethod
+    def _nsplit(strng):
+        n = 2  # Number of characters per group
+        return [strng[k:k+n] for k in xrange(0, len(strng), n)]
 
     def _cmd(self, command, byte0=None, byte1=None):
         std_cmd = True
@@ -155,20 +158,24 @@ class SonyXBRHX909(object):
             std_cmd = False
             byte1 = self.byte1
 
-        # Convery first two bytes to hex
-        if isinstance(byte0, int): byte0 = hex(byte0)[2:].zfill(2)
-        if isinstance(byte1, int): byte1 = hex(byte1)[2:].zfill(2)
+        # Convert first two bytes to hex
+        if isinstance(byte0, int):
+            byte0 = hex(byte0)[2:].zfill(2)
+        if isinstance(byte1, int):
+            byte1 = hex(byte1)[2:].zfill(2)
 
         cmd = [byte0, byte1]
 
         # Each command has a category code.
         code = command[0]
-        if isinstance(code, int): code = hex(code)[2:].zfill(2)
+        if isinstance(code, int):
+            code = hex(code)[2:].zfill(2)
 
         # Each command has a length (of its data) associated with it.
         # N.B. this length INCLUDES the checksum value!
         length = command[1]
-        if isinstance(length, int): length = hex(length)[2:].zfill(2)
+        if isinstance(length, int):
+            length = hex(length)[2:].zfill(2)
         required_length = int(length, 16)
 
         # Add the category code and length to the command
@@ -198,10 +205,7 @@ class SonyXBRHX909(object):
         cmd.append(checksum)
 
         # Add a carriage return? Required? Probably not.
-        #cmd.append('0D')
-
-        # Uncomment for debugging; what is the whole command?
-        #print "FINAL COMMAND:", cmd
+        # cmd.append('0D')
 
         # Hex-encode the command for transmission
         try:
@@ -219,9 +223,9 @@ class SonyXBRHX909(object):
 
         # Wait longer to read the response if nothing was returned
         if len(response) is 0:
-            #self.__conn.timeout = 0.1
+            # self.__conn.timeout = 0.1
             response = self.__conn.read(3)
-            #self.__conn.timeout = self.command_interval
+            # self.__conn.timeout = self.command_interval
 
         # Zero-length responses are an error
         if len(response) is 0:
@@ -260,13 +264,13 @@ class SonyXBRHX909(object):
         """
         return self._cmd(['04', '02', temp], '8C', '10')
 
-    def picture_mode(self, mode):
-        """Changes picture mode; valid modes are 00-03.
-
-        This doesn't seem to affect picture mode at all. It changes the
-        CC mode or something. Only '00' has a noticeable effect (?)
-        """
-        return self._cmd(['10', '02', mode], '8C', '10')
+    # def picture_mode(self, mode):
+    #     """Changes picture mode; valid modes are 00-03.
+    #
+    #     This doesn't seem to affect picture mode at all. It changes the
+    #     CC mode or something. Only '00' has a noticeable effect (?)
+    #     """
+    #     return self._cmd(['10', '02', mode], '8C', '10')
 
     def theater_toggle(self):
         """Toggle Theater mode"""
@@ -285,13 +289,26 @@ class SonyXBRHX909(object):
 
     def power_off(self):
         # self._cmd(['00', '02', '01'], '8C', '00') also works.
-        self._standby_command_on() # ALWAYS do this before powering off!
+        self._standby_command_on()  # ALWAYS do this before powering off!
         return self._cmd(['00', '02', '00'])
+
+    def speaker_on(self):
+        """Enables internal speakers"""
+        return self._cmd(['36', '03', '01', '01'])
+
+    def speaker_off(self):
+        """Disables internal speakers"""
+        return self._cmd(['36', '03', '01', '00'])
+
+    def speaker_toggle(self):
+        """Toggle internal speakers on/off"""
+        return self._cmd(['36', '02', '00'])
 
     def input_select(self, input_group, input_subgroup, input_unit=None):
         """Generic command for selecting an input"""
         cmd = ['02', input_group, input_subgroup]
-        if input_unit: cmd.append(input_unit)
+        if input_unit:
+            cmd.append(input_unit)
         return self._cmd(cmd)
 
     def input_toggle(self):
