@@ -145,7 +145,7 @@ class SonyXBRHX909(object):
     @staticmethod
     def _nsplit(strng):
         n = 2  # Number of characters per group
-        return [strng[k:k+n] for k in xrange(0, len(strng), n)]
+        return [strng[k:k+n] for k in range(0, len(strng), n)]
 
     def _cmd(self, command, byte0=None, byte1=None):
         std_cmd = True
