@@ -237,20 +237,21 @@ class SonyXBRHX909(object):
         # Extract the response (discard header and checksum)
         try:
             response_code = self._nsplit(dec_response)[1]
+            response_int = int(response_code, 16)
         except IndexError:
             raise ResponseError("Garbled response: '%s'" % response)
 
         # Raise exceptions if abnormal termination
-        if response_code == '01':
+        if response_int == 1:
             raise LimitOverError("Value overrun (exceeds maximum limit)")
-        elif response_code == '02':
+        elif response_int == 2:
             raise LimitUnderError("Value underrun (below minimum limit)")
-        elif response_code == '03':
+        elif response_int == 3:
             raise CommandCancelled("Invalid data/length (command cancelled)")
-        elif response_code == '04':
+        elif response_int == 4:
             raise ParseError("Invalid command (parser error)")
 
-        return response_code
+        return response_int
 
     def sircs_command(self, data,  category):
         """Issues a SIRCS command, which require a data and category value.
